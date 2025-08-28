@@ -1,0 +1,124 @@
+08/28/2025: Lecture 4
+
+- NA in a string means different from NA in general
+- Looking at date encoded in strong, you can't tell if it is encoded in string of if it is acctual date
+
+```r
+library(tidyverse)
+readr:: read csv
+df <- read_csv("source_data/character-data.csv"): # opens data set
+df # calling df to open the data set
+```
+
+- read_csv is fucntion fall provided by the package
+
+```r
+library(tidyverse)
+df <- read_csv("source_data/character-data.csv", col_types = cols(
+  character = col_character(),
+  universe = col_character(),
+  property_name = col_character(),
+  value = col_character()
+  )) #can split the data into multiple lines to make it neater
+# got code from lecture
+```
+
+- read_csv is better to use;
+- csv file good, but doesn't specifiy the dtaa type
+- Every time you look at data set, MAKE TABLES
+- built in function called table --> returns arrays (named elemented)
+
+```r
+sort(table(df$property_name), decreasing = TRUE)
+
+library(dyplr)
+# this is an example of non-standard evalution (dyplr doesn't exisit outside of this context)
+# library sees if this pacakge is downloaded on system
+# takes that pacakge and sldies into stack of environments above global environemnt
+# when we type filter, we don't find in global but we find in the dyplr environment
+
+just_gender <- filter(df, property_name=="Gender")
+# this only includes those with property_name as Gender
+# creates subsets of data
+
+# if we say df$property_name == "Gender" we will get a boolean indexing
+```
+- When doing filer, you are filtering data but you are keeping the columns;
+- shows us all columns but only wehn property_name is gender (this is a boolean expression)
+
+- We are taking acctual column property_name and all at once comapres to Gender, it is a boolean array which is then used to filter dataset
+- these are opperating on dataset as a whole
+
+- everything is an Array in R
+
+  ```r
+  x <- c(5,4,3,2,1)
+  ii <- c(TRUE,FALSE, TRUE, FALSE,TRUE, FALSE)
+
+  x[ii]
+
+  # this pulls out the x values such that ii is TRUE
+  
+  ```
+
+  - Double brackets[[]] *** GO OVER *****
+ 
+  ```r
+  table(just_gender$value);
+  # this gives us a table of the values column and counts of thier variabkes in side thea rray values
+  ```
+
+  - But another way to do this to get a table is using tidyverse
+ 
+  ```r
+  arrange(tally(group_by(just_gender, value)),n)
+  # in ths table we have three types of non-female genders here
+
+  filter(just_gender, value == "Good")
+  # get a table (nice table) of those with value of Good
+  
+- Somestimes go back to source to understand why something is happening and why that occured
+
+- Dealing with duplicates, but before:
+- dealing with male and female lowercase (in this dataset)
+
+  ```r
+  library(tidyverse)
+  simplify_strings <- function(s){
+    s %>% 
+        str_to_lower() %>%
+        str_trim() %>%
+        str_replace_all("[^a-z1-9]+","_") %>%
+        str_replace_all("^_+","") %>% # added these lines after looking at the data
+        str_replace_all("_+$","");
+  }
+  ```
+  - Magritter --> R provides a %>% binary operator (piping operator) where the argument of first item ios fed into next argument
+  - It makes more sense as you go down the code
+  - The tidyverse provides this argument
+ 
+  ```r
+  library(tidyverse)
+  names(df) <- simplify_strings(names(df)); ## simplify our column names
+                                          ## as well
+
+  deduplicated <- df %>% mutate(across(everything(), simplify_strings)) %>%
+    distinct(); # mutate  bascially mutated the data df so we get rid of duplicates
+  
+  # alwasy print out before and after count of duplicate data
+  print(sprintf("Before simplification and deduplication: %d, after %d (%0.2f %% decrease)",
+              nrow(df),
+              nrow(deduplicated),
+              100-100*nrow(deduplicated)/nrow(df)));
+  # sprintf lets us format values itno all strings by using specical characyers sich as %
+  # %d means integer
+  # since we have three things it expects three outputs
+  ```
+
+```r
+prop_table(tidied_data, "hair")
+# creates a table of proportions of hair value/variable
+
+
+
+
