@@ -1,1 +1,235 @@
+09/02/2025
 
+Issue with wide/ long daatsets, is lots of missing data
+
+When we try to see data we see data layed out how datamanger wants it laied out not how data sceintists wasnt it laied out
+
+When you create database want to have it all in one place
+
+Taking student.csv, we will have binary vairbales and it allows to encode things in one place
+
+Joins: process of combining tables (almost always using keys)
+  - looking at keys in one table and keys in other table finding similars and joining them
+- Definitions:
+  - Table: data structure with columns and rows
+  - observations
+  - Key: column(s) which identifies an observation (unique) --> an integer id taht says this entity is associated w this number
+  - Query: program that uses tables, joins, filters, subsets columns, and creates new columns, and returns a new table
+  - Relational data(base): collection of atbles organized above lines
+  - Pivot: change our ntion of oberstation so we have one row per observation
+ 
+
+Pivots:
+- We want ONE OBSERVATION per row
+- so we pivot out data to see "How much information do we have about each student"
+    - We bascially pivoting the data will have columns of students and rows are variables
+
+```r
+library(tidyverse)
+#function given by this
+
+students <- read_csv("source_data/frat_boys_basic.csv")
+
+# note we pivot _longer_ because we need more rows for our observations
+student_data <- pivot_longer(students, fraternity:dietary_preference)
+
+# we pivot longer- take inout datasetm and specificy columns we want to pivor with the colon
+
+mddf(student_data)
+
+```
+However we get an error because we can;t create a column that has multiple types --> types need to be the same
+
+- Tibbles/ data frames aer lists of colu=omns which are R vectors
+- R vectors are homogenous in type
+- When we pivot longer, we're trying to put all diff values in diff columns into single columns
+- Our original columns have diff types --> we need same types
+
+```r
+
+library(tidyverse)
+
+students <- read_csv("source_data/frat_boys_basic.csv")
+
+mdpre(problems(students))
+
+
+# note we pivot _longer_ because we need more rows for our observations
+student_data <- pivot_longer(students, fraternity:dietary_preference,
+  names_to = "property",
+  values_to = "observation",
+  values_transform = function(x) ifelse(is.na(x), NA, as.character(x))) %>%
+  filter(complete.cases(.)) #bascially saying...
+
+ensure_directory("derived_data")
+write_csv(student_data, "derived_data/student_long.csv");
+
+mddf(student_data %>% 
+                 group_by(name) %>%  
+                 tally() %>%  
+                 arrange(desc(n)))
+
+```
+
+** cd . --> means in currentt working data sirectory
+** in R dot means curret working dataframe
+
+```r
+library(tidyverse)
+
+long_data <- read_csv("derived_data/student_long.csv")
+
+mddf(long_data %>% 
+      pivot_wider(id_cols=name, names_from=property, values_from=observation))
+# We need a dataset wheere names identyf observation
+
+```
+
+Pivots are for pivoting out understandin our understanding of obserfvations in datasets
+
+
+Joins!
+- We always talk about left and right table
+- joins are symmetric
+- left join is joining from the left
+- left table is where brain is and right table is where you want to get extra data from
+- always joining 2 tables (no more)
+
+Left_join --> one of the most common joins we'll use
+- what we're referring to is whatever the left table is (in this case whtat able appears table first on the left0 is our authoritative table
+- We want to get out same numbr of rows in the left table
+```r
+library(tidyverse)
+
+students <- read_csv("source_data/student.csv")
+majors <- read_csv("source_data/major.csv")
+fraternities <- read_csv("source_data/fraternity.csv")
+addresses <- read_csv("source_data/address.csv")
+props <- read_csv("source_data/student_properties.csv")
+
+# LEFT JOIN: keep all students, attach majors when present
+mdpre(paste(
+  "students:", nrow(students),
+  "majors:", nrow(majors)
+))
+students_majors_left <- students %>%
+  left_join(majors %>% rename(major_name = name, major_address_id = address_id),
+            by = c("major_id" = "id")) %>% #sayign to m,atch id columns from left table to right table --. major_id in students and id in majors
+  select(id, name, major_id, major_name, enrollment_date, gpa)
+# Basically will left join data and add on column with values such taht the major_id is same as id
+# This adds on a columns and retains ALL rows from left dataset
+
+mdpre(paste("left join rows:", nrow(students_majors_left)))
+mddf(students_majors_left)
+```
+
+Inner join --> most common for data scientists
+- Called it bc its saying authoritativley both tables matter --> only rows w]for which we can perform a match between two tables
+
+```r
+library(tidyverse) 
+
+# CONTRIVED INNER JOIN: only rows with matching keys survive
+left_df <- tibble(id = c(1, 2, 3), val_left = c("A", "B", "C"))
+right_df <- tibble(id = c(2, 3, 4), val_right = c("X", "Y", "Z"))
+# if we did inner join here  on ID we would onmy keep rows of 2 and 3
+
+mdpre("left")
+mddf(left_df)
+
+mdpre("right")
+mddf(right_df)
+
+mdpre(paste(
+  "left rows:", nrow(left_df),
+  "right rows:", nrow(right_df)
+))
+
+inner_df <- left_df %>% inner_join(right_df, by = "id")
+
+mdpre(paste("inner rows:", nrow(inner_df)))
+mddf("inner join")
+mddf(inner_df)
+```
+
+Whenever we perform a inner join, we should count number of rows before and after and log it
+
+
+Going Back to Lecture 4:
+- ggplot!!
+- Grammer of graphics
+- library(ggplot2) and library(tidyverse)
+```r
+library(tidyverse)
+library(ggplot2); # note the 2
+
+ggplot(status_probs, aes(marital_status, p)) +
+    geom_bar(aes(fill=gender), stat="identity", position="dodge")
+# geom_bar means create geometric bar with fill being the bars to be gender
+#ALWAYS DODGE YOUR HISTOGRAMS not ON TOP OF EACHOTHER
+```
+- helps us understand something
+```r
+library(tidyverse)
+library(ggplot2); # note the 2
+
+ggplot(status_probs, aes(marital_status, p)) +
+    geom_bar(aes(fill=gender), stat="identity", position="dodge") +
+    labs(x="Marital Status",y="Probability",title="Gender and Marriage in Comics");
+# lets us go from one off plot to plots that are more professional
+labs creates labels --> 
+```
+
+Key concepts in ggplot
+- ggplo allows you to create assocains between data, geometrics, and aesthetics
+```r
+library(tidyverse)
+x <- seq(from=0,to=10,length.out=100);
+df <- tibble(x=x, y=3*x + 2 + rnorm(length(x)))
+ggplot(df,aes(x,y)) + geom_point();
+#geom_point --> scatter plot
+#we add to plot of what geometry we want tp use
+# the plus sign is operator overloading, depending on the objects, the plus combined peices of info together
+```
+
+```r
+library(tidyverse)
+df$category <- sample(factor(c(1,2,3)),size=nrow(df),replace=T)
+ggplot(df,aes(x,y)) + geom_point(aes(color=category));
+# asking to create assocaitin betweeen category and color
+```
+
+- figure out how you want to map your data
+- figure out geometry type (go into ggplot doccumnetation)
+
+```r
+library(tidyverse)
+ggplot(tidied_data, aes(property_name)) + geom_histogram(stat="count");
+
+# the main aestetic is property_name meaning thsie will be the bars
+#here our labes run over eachother
+# want to rotate axis labels 90 dgerees
+
+# so do this intstead:
+
+library(tidyverse)
+ggplot(tidied_data, aes(property_name)) +
+    geom_histogram(stat="count") +
+    theme(axis.text.x = element_text(angle = 90));
+
+# axiis.text.x allows the angle to be 90 degree
+# but it is not in order of decreaing/ inceasing soo do this:
+
+library(tidyverse)
+properties_in_order <- tidied_data %>% group_by(property_name) %>%
+    tally() %>%
+    arrange(desc(n),property_name) %>% `[[`("property_name");
+# enforce and  order to create the property_name into ordered factor columns
+# categorical vairables can be ordered by their count
+
+ggplot(tidied_data, aes(factor(property_name,properties_in_order))) +
+#factorsing the property_name by their tally marks
+    geom_histogram(stat="count") +
+    theme(axis.text.x = element_text(angle = 90));
+
+```
