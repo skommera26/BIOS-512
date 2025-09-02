@@ -1,4 +1,17 @@
+---
 09/02/2025
+---
+
+# Lecture 5: Pivots + joins + little tidyverse
+
+```{r}
+library(tidyverse) # step 1
+if (!dir.exists("intermediate")) dir.create("intermediate", recursive = TRUE) # step 2
+if (!exists("mdpre")) mdpre <- function(x) { print(x) } # step 3
+if (!exists("ggmd"))  ggmd  <- function(p) { print(p) } # step 4
+```
+Above is basically defining helper function mdpre and ggmp where mdpre printgs anything passed into it and ggmp takes ggplot object and prints it
+
 
 Issue with wide/ long daatsets, is lots of missing data
 
@@ -24,7 +37,7 @@ Pivots:
 - so we pivot out data to see "How much information do we have about each student"
     - We bascially pivoting the data will have columns of students and rows are variables
 
-```r
+```{r}
 library(tidyverse)
 #function given by this
 
@@ -44,8 +57,10 @@ However we get an error because we can;t create a column that has multiple types
 - R vectors are homogenous in type
 - When we pivot longer, we're trying to put all diff values in diff columns into single columns
 - Our original columns have diff types --> we need same types
+- the pivito_longer pivots the data such that each row is multiple ids of the same id with each row being allocated to a diff property
+- names_to shows wheer the column_names will go to in what columns and vlaeus_to shows that the observation oclumn will be created to hold the vlaues in each of these columns
 
-```r
+```{r}
 
 library(tidyverse)
 
@@ -59,7 +74,8 @@ student_data <- pivot_longer(students, fraternity:dietary_preference,
   names_to = "property",
   values_to = "observation",
   values_transform = function(x) ifelse(is.na(x), NA, as.character(x))) %>%
-  filter(complete.cases(.)) #bascially saying...
+  filter(complete.cases(.)) #bascially saying create a fucntion such that is it is NA keep as NA if nt =ot turn into a strong
+# ensures that allvalues are the same!
 
 ensure_directory("derived_data")
 write_csv(student_data, "derived_data/student_long.csv");
@@ -68,13 +84,15 @@ mddf(student_data %>%
                  group_by(name) %>%  
                  tally() %>%  
                  arrange(desc(n)))
+# this is taking the student data creating a dataframe such that it gives tallys in each name group and is decenfing
 
 ```
+- 
 
 ** cd . --> means in currentt working data sirectory
 ** in R dot means curret working dataframe
 
-```r
+```{r}
 library(tidyverse)
 
 long_data <- read_csv("derived_data/student_long.csv")
@@ -87,8 +105,21 @@ mddf(long_data %>%
 
 Pivots are for pivoting out understandin our understanding of obserfvations in datasets
 
+*TAKEAWAYS:*
 
-Joins!
+1. pivot_longer(data_set, first_column:last_column, names_to = "name_for_cols", values_to = "name_for_vals", values_transform = *can be fucniton that ensures all are same character*) #ALL CHARACTERS IN PIVOT MUST BE OF SAME CHARACTER#
+  - takes the data given and creates multiple rows of the same id with different attricbutes from the columns
+  - collapses into key-vlaue pairs (more rows) --> key being the column names
+  - called pivot_longer bc dataset gets longer
+
+2. Pivot_wider
+  - pivot_wider(data_set, id_cols = name_contianing_idcols, names_from=names_w_cols, values_from=name_cont_obs)
+  - This takes data and makes it wider as in takes the names from and creates columns with values from it
+  - seperates key-vlaue pairs abck into speerate rows/ columns
+
+
+
+*Joins!*
 - We always talk about left and right table
 - joins are symmetric
 - left join is joining from the left
@@ -98,7 +129,8 @@ Joins!
 Left_join --> one of the most common joins we'll use
 - what we're referring to is whatever the left table is (in this case whtat able appears table first on the left0 is our authoritative table
 - We want to get out same numbr of rows in the left table
-```r
+
+```{r}
 library(tidyverse)
 
 students <- read_csv("source_data/student.csv")
@@ -126,7 +158,7 @@ mddf(students_majors_left)
 Inner join --> most common for data scientists
 - Called it bc its saying authoritativley both tables matter --> only rows w]for which we can perform a match between two tables
 
-```r
+```{r}
 library(tidyverse) 
 
 # CONTRIVED INNER JOIN: only rows with matching keys survive
@@ -159,7 +191,8 @@ Going Back to Lecture 4:
 - ggplot!!
 - Grammer of graphics
 - library(ggplot2) and library(tidyverse)
-```r
+
+```{r}
 library(tidyverse)
 library(ggplot2); # note the 2
 
@@ -169,7 +202,8 @@ ggplot(status_probs, aes(marital_status, p)) +
 #ALWAYS DODGE YOUR HISTOGRAMS not ON TOP OF EACHOTHER
 ```
 - helps us understand something
-```r
+  
+```{r}
 library(tidyverse)
 library(ggplot2); # note the 2
 
@@ -182,7 +216,7 @@ labs creates labels -->
 
 Key concepts in ggplot
 - ggplo allows you to create assocains between data, geometrics, and aesthetics
-```r
+```{r}
 library(tidyverse)
 x <- seq(from=0,to=10,length.out=100);
 df <- tibble(x=x, y=3*x + 2 + rnorm(length(x)))
@@ -192,7 +226,7 @@ ggplot(df,aes(x,y)) + geom_point();
 # the plus sign is operator overloading, depending on the objects, the plus combined peices of info together
 ```
 
-```r
+```{r}
 library(tidyverse)
 df$category <- sample(factor(c(1,2,3)),size=nrow(df),replace=T)
 ggplot(df,aes(x,y)) + geom_point(aes(color=category));
@@ -202,7 +236,7 @@ ggplot(df,aes(x,y)) + geom_point(aes(color=category));
 - figure out how you want to map your data
 - figure out geometry type (go into ggplot doccumnetation)
 
-```r
+```{r}
 library(tidyverse)
 ggplot(tidied_data, aes(property_name)) + geom_histogram(stat="count");
 
