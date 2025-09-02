@@ -6,14 +6,14 @@ Purpose: BIOS 512 HW #2
 
 
 Loading nessecary packages:
-```r
+```{r}
 library(tidyversse)
 ```
 
 1. What are three ways that we can assign the value of 25 to y?
 
 A:
-```r
+```{r}
 # First way
 y <- 25
 # Second way
@@ -27,7 +27,7 @@ y <<- 25
 He said, “I’m Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.”
 
 A:
-```r
+```{r}
 "He said, \"I'm Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.\""
 ```
 
@@ -36,14 +36,14 @@ A:
 He said, “I’m Garth Marenghi. Author\Dreamweaver\Visionary. Plus actor.”
 
 A:
-```r
+```{r}
 "He said, \"I'm Garth Marenghi. Author\\Dreamer\\Visionary. Plus actor.\""
 ```
 
 4. Show two ways to get the following array: 1 2 3
 
 A:
-```r
+```{r}
 # First way
 c(1,2,3)
 # Second way
@@ -56,7 +56,7 @@ A: R calls +, -, sin(), c() as functions, specifically infix functions becasue t
 
 6. What’s the difference in the way R processes the while() and the for() below?
 
-```r
+```{r}
 x <- 0;
 while (x <= 3) {
 x <- x + 1;
@@ -75,7 +75,7 @@ A: The while loop starts with x at 0, and coninually adds 1 to that x value unti
 7. Create the Pythagorean formula and evaluate it with a=3 and b=4. Print the output.
 
 A:
-```r
+```{r}
 pythagorean_funct <- function(a, b) {
   c_squared <- a^2 + b^2
   c_squared
@@ -87,13 +87,13 @@ print(pythagorean_funct(3,4))
 9. Load the help for the built in sin() function
 
 A:
-```r
+```{r}
 ?sin()
 ```
 
 
 11. Which version of the counter function works? What is the difference in the way R processes the two functions?
-```r
+```{r}
 # First Way
 counter1 <- function(start, step){
 val <- start;
@@ -127,13 +127,13 @@ a) Use read_csv the cars.csv and store it in a data frame.
 
 b) Then, group the data frame by Make, get averages across the numeric variables, and then sort by
 Volume in descending order. Hint: Use summarise(across(c(), mean)) to get the averages.
-```r
+```{r}
 
 ```
 
 11. Make a function that returns the Fibonacci sequence, then call it 7 times to return the first 7 values of the
 sequence. Use the correct counter function from question 9 for inspiration.
 
-```r
+```{r{
 
 ```
