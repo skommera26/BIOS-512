@@ -24,6 +24,8 @@ y <<- 25
 
 He said, “I’m Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.”
 ```r
+"He said, \"\I'm Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.\"\"
+```
 
 
 
