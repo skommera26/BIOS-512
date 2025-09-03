@@ -121,10 +121,14 @@ counter_from_1 <- counter2(1,1);
 counter_from_1()
 # Returns 1 when called once, returns 2 when called again
 ```
-#A:
+#A: The second version of the counter function works becasue it acctually updates the val variable while the first version of the counter function does not update the val variable.  The different in the way R processes the two functions are that the first function, R does not update the val variable, so when the counter1 function is called again by counter_from_1, the val variable stays the same as 1, and is not updated to its new value once added to the step.  However, the counter2 calue uses the <<- function which updated val to the new value after being added the step value. This working correclty and updated and returning the right value.
 
 ##10.
 ##a) Use read_csv the cars.csv and store it in a data frame.
+
+```{r}
+
+```
 
 ##b) Then, group the data frame by Make, get averages across the numeric variables, and then sort by
 Volume in descending order. Hint: Use summarise(across(c(), mean)) to get the averages.
