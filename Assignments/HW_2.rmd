@@ -8,7 +8,7 @@ Date Created: "09/01/2025"
 
 ##Loading nessecary packages:
 ```{r}
-library(tidyversse)
+library(tidyverse)
 ```
 
 ##1. What are three ways that we can assign the value of 25 to y?
