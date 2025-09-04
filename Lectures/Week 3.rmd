@@ -215,7 +215,7 @@ labs creates labels -->
 ```
 
 Key concepts in ggplot
-- ggplo allows you to create assocains between data, geometrics, and aesthetics
+- ggplot allows you to create assocains between data, geometrics, and aesthetics
 ```{r}
 library(tidyverse)
 x <- seq(from=0,to=10,length.out=100);
@@ -267,3 +267,29 @@ ggplot(tidied_data, aes(factor(property_name,properties_in_order))) +
     theme(axis.text.x = element_text(angle = 90));
 
 ```
+
+
+# 09/04/2025
+
+- ggplot trinity
+  1. Data (row per obs)
+  2. Geometry (something we see)
+  3. Aesthetics (properties of geometries)
+
+```{r}
+
+library(tidyverse)
+if (!dir.exists("intermediate")) dir.create("intermediate", recursive = TRUE) # step 2
+if (!exists("mdpre")) mdpre <- function(x) { print(x) } # step 3
+if (!exists("ggmd"))  ggmd  <- function(p) { print(p) } # step 4
+
+x <- seq(from=0, to=10, length.out=100);
+df <- tibble(x=x, y=3*x + 2 + rnorm)length(x))
+ggplot(df,aes(x,y)) + geom_point()
+
+```
+
+- pie charts == bad
+
+- by adding noise to the dsitribtion we get better sense of how the point slook like and how they are distributed
+
