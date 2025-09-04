@@ -3,7 +3,7 @@
 - NA in a string means different from NA in general
 - Looking at date encoded in strong, you can't tell if it is encoded in string of if it is acctual date
 
-```r
+```{r}
 library(tidyverse)
 readr:: read csv
 df <- read_csv("source_data/character-data.csv"): # opens data set
@@ -12,7 +12,7 @@ df # calling df to open the data set
 
 - read_csv is fucntion fall provided by the package
 
-```r
+```{r}
 library(tidyverse)
 df <- read_csv("source_data/character-data.csv", col_types = cols(
   character = col_character(),
@@ -28,7 +28,7 @@ df <- read_csv("source_data/character-data.csv", col_types = cols(
 - Every time you look at data set, MAKE TABLES
 - built in function called table --> returns arrays (named elemented)
 
-```r
+```{r}
 sort(table(df$property_name), decreasing = TRUE)
 
 library(dyplr)
@@ -51,7 +51,7 @@ just_gender <- filter(df, property_name=="Gender")
 
 - everything is an Array in R
 
-  ```r
+  ```{r}
   x <- c(5,4,3,2,1)
   ii <- c(TRUE,FALSE, TRUE, FALSE,TRUE, FALSE)
 
@@ -63,14 +63,14 @@ just_gender <- filter(df, property_name=="Gender")
 
   - Double brackets[[]] *** GO OVER *****
  
-  ```r
+  ```{r}
   table(just_gender$value);
   # this gives us a table of the values column and counts of thier variabkes in side thea rray values
   ```
 
   - But another way to do this to get a table is using tidyverse
  
-  ```r
+  ```{r}
   arrange(tally(group_by(just_gender, value)),n)
   # in ths table we have three types of non-female genders here
 
@@ -82,7 +82,7 @@ just_gender <- filter(df, property_name=="Gender")
 - Dealing with duplicates, but before:
 - dealing with male and female lowercase (in this dataset)
 
-  ```r
+  ```{r}
   library(tidyverse)
   simplify_strings <- function(s){
     s %>% 
@@ -97,7 +97,7 @@ just_gender <- filter(df, property_name=="Gender")
   - It makes more sense as you go down the code
   - The tidyverse provides this argument
  
-  ```r
+  ```{r}
   library(tidyverse)
   names(df) <- simplify_strings(names(df)); ## simplify our column names
                                           ## as well
@@ -115,7 +115,7 @@ just_gender <- filter(df, property_name=="Gender")
   # since we have three things it expects three outputs
   ```
 
-```r
+```{r}
 prop_table(tidied_data, "hair")
 # creates a table of proportions of hair value/variable
 
