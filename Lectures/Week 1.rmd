@@ -5,14 +5,14 @@ Quotations:
 - Quotations evaluate to a string
 - Set of characters between the "" evaluate to a string
 
-  ```r
+  ```{r}
   "abcd"
   "10" # is a string
   10 # is an integer
   ```
 
   - Another way to have quotation marks in strings use this:
-  ```r
+  ```{r}
   "This includes quotes:\"\""
   "This includes backslashes:\\""
   ```
@@ -36,13 +36,13 @@ Loops + For  in
 Functions
 - c, +, - are functions, but they are primative funcitons: built-in function calls
 
-```r
+```{r}
 `+` # will run back to the last way we can backtrack so it will say .Primitive("+") bc cant backtrack any furtehr
 ```
 - Everytime a fucntion is called a new environment is created
 - can create your own funciton using function() argument
 
-```r
+```{r}
 quadratic_formula <- function(a,b,c) {
   r <- sqrt(b*b - 4*a*c);
   n1 <- -b + r;
@@ -58,7 +58,7 @@ c(r,n1,n2,d)
 ** notice w curley brakeys they open in that line of code, and you press enter to start code within curly brackt on other line
 ** you end the code with the curly braket on a seperate line
 
-```r
+```{r}
 make_counter <- function(start, incr){
     value <- start;
     function(){
