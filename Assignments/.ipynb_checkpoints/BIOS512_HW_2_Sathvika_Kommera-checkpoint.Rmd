@@ -1,0 +1,185 @@
+---
+title: "BIOS 512 HW_2"
+author: "Sathvika Kommera"
+output: html_document
+date: "2025-09-03"
+---
+
+**Loading nessecary packages:**
+```{r}
+library(tidyverse)
+```
+
+**1. What are three ways that we can assign the value of 25 to y?**
+
+
+*A:*
+```{r}
+# First way
+x <- 5
+# Second way
+y = 10
+# Third way
+z <<- 15
+
+```
+
+**2. How would I print the following line, including the quotes, in R? He said, “I’m Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.”**
+
+
+*A:*
+```{r}
+cat("He said, \"I'm Garth Marenghi. Author. Dreamweaver. Visionary. Plus actor.\"")
+```
+
+**3. What if I wanted to add backslashes into the statement from Question 1 to make the statement below? He said, “I’m Garth Marenghi. Author\Dreamweaver\Visionary. Plus actor.”**
+
+
+*A:*
+```{r}
+cat("He said, \"I'm Garth Marenghi. Author\\Dreamer\\Visionary. Plus actor.\"")
+
+# note to self: cat() helps get rid of the backslashes that come with pritning this string
+```
+
+**4. Show two ways to get the following array: 1 2 3**
+
+
+*A:*
+```{r}
+# First way
+c(1,2,3)
+# Second way
+1:3
+```
+
+**5. What does R call things like +, -, sin(), c(), etc? What about <-?**
+
+
+*A:* R calls +, -, sin(), c() as functions, specifically infix functions becasue they are built-in functions of R. However, <- is a function but is called an assignment operator because it assigns variables to certain items or other variables.
+
+
+**6. What’s the difference in the way R processes the while() and the for() below?**
+
+```{r}
+x <- 0;
+while (x <= 3) {
+x <- x + 1;
+}
+x
+
+for(y in c(1,2,3)) {
+y <- y + 1;
+}
+y
+```
+
+
+*A:* The while loop starts with x at 0, and coninually adds 1 to that x value until x is not greater than 3. This while loop does not have an 'end' per se rather the x vlaue is continually updated to a number plus 1, until the initial condition is False.  While the for loop is given an intial set of variables that the function loops through and adds 1 to each of them. This for loop has a specified initial condiiton and will stop until the last variable in the condition is evaluated and executed. The y value here will be the last variable in the initial condiiton afetr it is evaluted and will return the same value as the while loop which also returns the last value it was assigned to before becomming False.
+
+
+**7. Create the Pythagorean formula and evaluate it with a=3 and b=4. Print the output.**
+
+*A:*
+```{r}
+pythagorean_funct <- function(a, b) {
+  c_squared <- a^2 + b^2
+  c_squared
+  }
+
+print(pythagorean_funct(3,4))
+```
+
+**8. Load the help for the built in sin() function**
+
+
+*A:*
+```{r}
+?sin()
+```
+
+
+**9. Which version of the counter function works? What is the difference in the way R processes the two functions?**
+```{r}
+# First Way
+counter1 <- function(start, step){
+val <- start;
+function(){
+old_val <- val;
+val <- val + step;
+old_val;
+}
+}
+counter_from_1 <- counter1(1,1);
+counter_from_1()
+# Returns 1 when called once, reterns 1 when called again
+
+# Second function
+counter2 <- function(start, step){
+val <- start;
+function(){
+old_val <- val;
+val <<- val + step;
+old_val;
+}
+}
+counter_from_1 <- counter2(1,1);
+counter_from_1()
+# Returns 1 when called once, returns 2 when called again
+```
+*A:*
+
+The second version of the counter function works becasue it acctually updates the val variable while the first version of the counter function does not update the val variable.  The difference in the way R processes the two functions are that in the first function, R does not update the val variable, so when the counter1 function is called again by counter_from_1, the val variable stays the same as 1, and is not updated to its new value once added to the step.  However, the counter2 value uses the <<- function which updates val to the new value after being added the step value. This works correctly, updates, and returns the right value as we want the function to update its val so that each time we call counter_from_1, we get a new value.
+
+**10.**
+**a) Use read_csv the cars.csv and store it in a data frame.**
+
+*A:*
+```{r}
+cars_df <- read.csv("~/Downloads/cars.csv")
+cars_df
+```
+
+
+**b) Then, group the data frame by Make, get averages across the numeric variables, and then sort by Volume in descending order. Hint: Use summarise(across(c(), mean)) to get the averages.**
+
+*A:*
+```{r}
+# Grouping data by Make
+group_by (cars_df, Make)
+
+# Getting averages accross numeric variables (those being Volume, Weight, and CO2)
+cars_df %>% 
+  summarise(across(c(Volume, Weight, CO2), mean))
+
+# Sorting by volume, decending order
+cars_df %>% arrange(desc(Volume))
+
+```
+
+**11. Make a function that returns the Fibonacci sequence, then call it 7 times to return the first 7 values of the sequence. Use the correct counter function from question 9 for inspiration.**
+
+*A:*
+```{r}
+# Fibonacci sequence --> starts with 0,1 and adds themn togther to get 2, then 1+2 = 3 ....
+
+Fib_seq <- function(x,y) {
+  x <- 0
+  y <- 1
+  z <- x + y
+  function() {
+    print(z)
+    x <<- y
+    y <<- z
+    z <<- x + y
+  }
+}
+
+Fib_counter <- Fib_seq(0,1)
+Fib_counter()
+Fib_counter()
+Fib_counter()
+Fib_counter()
+Fib_counter()
+Fib_counter()
+```
