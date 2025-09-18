@@ -1,0 +1,24 @@
+---
+title: "Week_4"
+output: html_document
+date: "2025-09-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Principles of effective visualization
+
+Metric spaces and Dimensionality reduction
+
+tsync --> lok at every point in our dataset,
+ --> distribution of density (y) and distances between datapoints (x), and put into different dimensions, and see when these distances in each dimension match the og dimension. --> helps find the correlation between datapoints
+ 
+ distrubution matrix --> diagnoal is 0;
+ 
+ Rtsne takes in distance matrix directly with diff parameters
+ ex: take the chemical names, when passed in through here, we get a graph showing relaitonship between the names as in all the scoids are next to one another, etc
+ 
+ 
+ 
