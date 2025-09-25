@@ -1,0 +1,180 @@
+---
+title: "HW5"
+output: html_document
+date: "2025-09-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+- This homework requires wine.csv, and the tidyverse and Rtsne packages. Install them if you
+haven’t already!
+See the following link for how to add new packages to Binder:
+https://github.com/rjenki/BIOS512?tab=readme-ov-file#adding-packages-to-installr-later.
+For readability and easier processing, please make each question part a different code
+chunk
+
+```{r}
+# attaching nessecary packages
+library(tidyverse)
+library(dplyr)
+library(Rtsne)
+
+```
+
+# 1.1 Question 1
+a) Import your data. <br>
+
+```{r}
+
+# reading in dataframe
+df <- read.csv("~/Downloads/GitHub/BIOS-512/Data/wine.csv")
+
+```
+
+b) Check out the columns present using one of R’s data frame summary.<br>
+```{r}
+
+# seeing columns present
+glimpse(df)
+
+```
+
+c) Get summary statistics on the numeric variables<br>
+```{r}
+
+#Getting summary statistics on numeric variables
+summary(df)
+# note to sefl: putting just summary with dataframe, R automatically gets summary stats for each column
+
+```
+
+
+# 1.2 Question 2
+a) Scale and center your data Hint: Use a mutate() statement across all columns except
+class with function(x) as.numeric(scale(x)).<br>
+
+```{r}
+
+#a)
+df <- df %>% mutate(across(c(Alcohol,Malicacid, Ash, Alcalinity_of_ash, Magnesium, Total_phenols, Flavanoids, Nonflavanoid_phenols, Proanthocyanins, Color_intensity, Hue, X0D280_0D315_of_diluted_wines, Proline), 
+                           function(x) as.numeric(scale(x))))
+```
+
+
+b) Based on what you saw in the summary statistic table from the imported data,
+why would scaling and centering this data be helpful before we perform PCA?<br>
+
+  *A:* Scaling and centering in this data is helpful before performing PCA so that they are all standardized on the same scale so they are easier to interpret. The data looks very varied and has multiple scales that were used for each column.  Having all the columns on an equal scale ensure that there is an easier way to track outliers and helps interpret the data across all columns equally. Specifically, as said in the lecture notes we have different cluster of data on different scales, so scaling them ensures that they are on the same scale and have a standard center to use than multiple different centers affecting the overall PCA outcome.
+
+
+# 1.3 Question 3
+a) Perform PCA<br>
+
+```{r}
+#a) performing PCA
+df_pca <- prcomp(df)
+```
+
+b) How much of the total variance is explained by PC1? PC2? What function do we
+use to see that information?<br>
+
+```{r}
+#b)
+summary(df_pca)
+
+# by PC1, 0.9981 of the variance is explained and by PC2 0.00174 of the varience is explained
+
+```
+
+
+c) Why are we doing PCA first?<br>
+  *A:* We are doing PCA first because we want to capture the columns that have the most variance in the data set to do further analysis on. Doing so we are conducting analysis on the columns with most variations to capture those that are affecting the data the most. It also helps in reducing the amount of data that is only building more noise and takes out low-variance data to focus on high-variance data.  
+
+
+
+d) What is the rotation matrix? Print it explicitly. Hint: Check the notes for a simple
+way to do this!<br>
+```{r}
+
+#d) The rottion matrix is a matrix such that it takes the data and rotates it preseving the original shape of the data. This provides a new perspective to look at data and find observations that can be seen through this.
+
+df_rm <- df_pca$rotation
+# no need to do solve it, the rotation matrix is automatially given by this
+df_rm
+
+```
+
+
+
+e) Plot PC1 vs. PC2, using the wine class as labels for coloring. Hint: You’ll first need
+a data set with only PC1 and PC2, then add back the class variable from your scaled data set with a mutate() statement. Then, you can use color = factor(class) in your ggplot statement.<br>
+
+```{r}
+
+#e)
+# selecting pc1 and pc2 dataset to make a new dataframe such that PC1 and PC2 are only included
+
+all_pcs <- as.data.frame(df_pca$x)
+all_pcs <- all_pcs %>% mutate(class = df$class)
+pc1_pc2 <- all_pcs %>% select(PC1, PC2, class)
+
+# graphing the data
+pc1_pc2 %>% ggplot(aes(x=PC1, y=PC2), color = factor(class)) + 
+  geom_point(alpha=0.5)
+
+```
+
+
+
+f) What do you see after plotting PC1 vs. PC2? What does this mean in context of
+wine classes?<br>
+  *A:* After plotting PC1 vs PC2 I see that for the three classes, there are already three clusters formed. These three clusters identify the three classes of wine that are plotted below. It essentially shows the key differences between the classes of wine and how different they are in their characteristics.
+
+
+g) Give an example of data where PCA would fail. You can describe the data or do a simulation. Hint: Our notes have a few examples!<br>
+  *A:* An example where PCA would fial is when our data set is in the shape of a circle or is in a non-linear shape. PCA depends on the assumtipns that he data is close to a linear form, and thus when it is not, PCA does nto give us accurate dimensionality reductions on the data
+
+
+h) Explain the difference between vector space and manifold, and how these terms apply to what we did/will do with T-SNE.<br>
+
+  *A:* A vector space is a space such that vectors are abe to reside in contingent upon certain axions ("rules") which are flat such that in there vectors are able to be added, subtracted, multipled without leaving the vector space. These spaces are defined globally because a vector space shows all vectors possible that could reside here.  While, a manifold is something that resembles a vector space, but locally.  Specifically, a manifold shows the difference between points and is usually a curved space as compared to a vector space, which is flat.
+
+
+# 1.4 Question 4
+a) Perform T-SNE Set seed = 123.
+Hint: Subset your PCA results to PC1–PC10, add the class variable back in, remove duplicates,then perform T-SNE. <br>
+
+```{r}
+#a)
+pca1_10 <- all_pcs %>% select(PC1:PC10) %>% distinct() %>% as.matrix()
+
+set.seed(123)
+tsne_pc110 <- Rtsne(pca1_10, dims=2, perplexity = 30, check_duplicates = FALSE)
+tsne_pc110
+
+```
+
+
+b) Plot the results in 2D Hint: Convert your T-SNE results to a tibble and add back the
+class variable from your scaled data set using a mutate() statement. Then, you can use color = factor(class) in your ggplot statement.<br>
+```{r}
+
+# b)
+results <- as.tibble(tsne_pc110$Y) %>% mutate(class = df$class)
+
+ggplot(results, aes(x=V1, y=V2, color=factor(class))) + 
+  geom_point()
+
+```
+
+
+c) Why didn’t we stop at PCA?<br>
+  *A:* We didn't stop at PCA because the actual clustering of the data from the PCA is hard to see. Thus, performing T-SNE helps accurately visualize the distances between the points and how much they differ from each other.  PCA visualizes these points but also when plotted it retains the overall shape of the original distribution which is helpful, but can be hard when we want to see key differences between these points.  Thus, doing T-SNE we can accurately see the differences between the points which are more pronounced here. 
+
+
+d) What other types of data does this workflow make sense for?<br>
+  *A:* This workflow also makes sense for when we have high dimensional datasets and we run PCA however we want to understand better how the data looks visually.  We run T-SNE so we can understand how the data looks on a local scale visually meaning how the data looks in the context of the data given when in reduced dimensions. This workflow also makes sense for data that is not linear naturally as T-SNE helps make relationships between data points even if the data is not linear.
+
+
