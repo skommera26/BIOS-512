@@ -5,5 +5,8 @@ install.packages("rmarkdown", dependencies = TRUE)
 install.packages("IRkernel", dependencies = TRUE)
 install.packages("skimr", dependencies = TRUE)
 install.packages("Rtsne", dependencies = TRUE)
+install.packages("glmnet", dependencies = TRUE)
+install.packages("broom", dependencies = TRUE)
+install.packages("gridExtra", dependencieds=TRUE)
 
 IRkernel::installspec(user = FALSE)
