@@ -3,5 +3,13 @@ install.packages(c("readr","ggplot2","tidyr"))
 install.packages("tidyverse", dependencies = TRUE)
 install.packages("rmarkdown", dependencies = TRUE)
 install.packages("IRkernel", dependencies = TRUE)
+install.packages("skimr", dependencies = TRUE)
+install.packages("Rtsne", dependencies = TRUE)
+install.packages("glmnet", dependencies = TRUE)
+install.packages("broom", dependencies = TRUE)
+install.packages("httr", dependencies=TRUE)
+install.packages("tokenizers", dependencies=TRUE)
+install.packages("stringr", dependencies=TRUE)
+
 
 IRkernel::installspec(user = FALSE)
