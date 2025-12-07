@@ -29,7 +29,7 @@ library(rpart.plot)
 
 ## Loading in Dataset
 ```{r}
-df <- read.csv("~/Downloads/R/cancer-risk-factors.csv")
+df <- read.csv("~/Downloads/GitHub/BIOS-512/Data/cancer-risk-factors.csv")
 
 ```
 
