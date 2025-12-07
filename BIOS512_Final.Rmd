@@ -1,0 +1,376 @@
+---
+title: "BIOS512 Final Project"
+output: html_document
+date: "2025-11-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading Libraries
+
+```{r}
+
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(gtsummary)
+library(flextable)
+library(table1)
+library(labelled)
+library(Rtsne)
+library(rpart)
+library(rpart.plot)
+
+```
+
+
+## Loading in Dataset
+```{r}
+df <- read.csv("~/Downloads/R/cancer-risk-factors.csv")
+
+```
+
+
+## Codebook style description of dataset
+
+```{r}
+
+# Store column names in a vector
+column_names <- names(df)
+
+# Total number of rows in the dataset
+n_total <- nrow(df)
+
+# Loop over each column to get basic summary stats
+for(col in column_names) {
+  values <- df[[col]];
+  n_na <- sum(is.na(values))  
+    
+  unique_vals <- values %>% table() %>% sort(decreasing = T)  # gets the unique values
+  n_unique <- length(unique_vals) # And gets number of unique values from length og unique values present
+  
+  col_type <- class(col)
+    
+  cat(sprintf("%s:\n", col))  # Print column name
+  cat(sprintf("\tclass: %10s\n", col_type))
+  cat(sprintf("\tnumber of NA values %d (%0.2f %%)\n", n_na, 100*n_na/n_total)) # prints number of NA values;
+  if(n_unique < 150) cat(sprintf("\t\t%s\n", names(unique_vals) %>% paste(collapse=", ")))  # syaing to print unique values if less than 150 of them
+  cat(sprintf("\tnumber of unique values %d (%0.2f %%)\n", length(unique_vals),  #tellings to print the percent of unique values
+    100*length(unique_vals)/n_total))
+}
+
+```
+
+## Table 1 by Gender
+
+```{r}
+# creating table 1 with percents and values for each variable
+
+# reanme variables
+df <- df %>% mutate(Gender = 
+                      (ifelse(Gender == 0, 
+                               "Female", 
+                               "Male")))
+
+table1 <- df %>% 
+  select(!Patient_ID) %>%
+  tbl_summary(by=Gender)
+
+flextable_1 <- as_flex_table(table1) 
+flextable_1 <- flextable_1 %>% font(fontname = "Times New Roman", 
+                                    part = "all") %>%
+                               bold(part="header") %>%
+                               color(color="black",
+                                     part = "all")
+  
+
+flextable_1
+
+```
+
+Q: I see that Lung Cancer is the most prevalence from the table, so I want to do some analyses on that by first creating simple histograms to visualize the data. <br>
+  1. First I want to create a histogram to visualize the difference in cancer prevalence. <br>
+  2. Next I want to see what cancers are most prevalent in each gender, and see which one is prevalent in both. <br>
+  3. Lastly I want to take the cancer prevalent in both and see it across age groups to understand who it is affecting the most.
+  
+<br>
+<br>
+
+## Histogram
+```{r}
+# generating histogram by cancers
+df %>%
+  ggplot(aes(x=Cancer_Type)) + 
+  geom_histogram(stat = "count", fill="steelblue", color = "black", position = "dodge") +
+  labs(x="Caner types") +
+  labs(y="Count") +
+  ggtitle("Cancers Counts") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+# creating histogram by genders
+df %>%
+  ggplot(aes(x=Cancer_Type)) +
+  geom_histogram(stat = "count", fill="steelblue", color="black", position = "dodge") +
+  facet_wrap(~Gender, ncol = 6) +
+  labs(x="Caner types") +
+  labs(y="Count") +
+  ggtitle("Cancers by Genders") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+
+# see that lung cancer is most prevalent among both males and females
+# breast caner most prevalent among females
+
+df %>% group_by(Gender) %>% summarise(avg_smoking = mean(Smoking))
+
+# histogram by ages for lung cancer
+
+df %>% select(Age, Cancer_Type) %>%
+  filter(Cancer_Type == "Lung") %>%
+  ggplot(aes(x=Age)) + 
+  geom_histogram(stat = "count", fill="steelblue", color="black", positon = "dodge") +
+  labs(x="Age") +
+  labs(y="Count of Lung Cancer") +
+  ggtitle("Lung Cancer counts by Age") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+
+
+
+```
+
+Q: We see that Lung Cancer is the most prevalence among this data set between genders, and overall.  We also see that Lung cancer is mostly affecting people between the ages of around 55-70 years old.  <br>
+  1. I want to create a probability distribution that shows which age groups are most likely to develop lung cancer. 
+<br>
+<br>
+
+## Manual probabilities of getting Lung Cancer
+
+```{r}
+
+df_lung <- df %>% select(Age, Cancer_Type) %>%
+  filter(Cancer_Type == "Lung")
+
+# group_by groups the data
+# arrange arranges data
+
+df_lung <- df_lung %>% 
+  group_by(Age) %>% 
+  summarise(Counts = length(Cancer_Type)) %>% 
+  mutate(Probability = Counts/sum(Counts))
+  
+  
+  df_lung %>% ggplot(aes(x=Age, y=Probability)) + 
+  geom_jitter(alpha = 0.8) + 
+  geom_smooth(linewidth = 0.8) + 
+  labs(x="Age") +
+  labs(y="Probalility") +
+  ggtitle("Probability of Lung Cancer by Age") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+```
+
+Q: So from this we do see that there is a higher probability of Lung Cancer between the ages of 55 and 70. <br>
+  1. So from there, I want to see what covariates are affecting the probability of developing lung cancer, which I will do through a linear regression model. <br>
+
+<br>
+<br>
+
+## Logistic Model using Covariates
+
+```{r}
+
+df_binary <- df %>% 
+  mutate(Cancer_Type = 
+           ifelse(Cancer_Type == "Lung", 1, 0)) %>% 
+  select(where(is.numeric))
+
+logistic_model <- glm(Cancer_Type ~ Age + Smoking + Alcohol_Use + Obesity + Family_History + Diet_Red_Meat + Diet_Salted_Processed + Fruit_Veg_Intake + Physical_Activity + Air_Pollution + Occupational_Hazards + BRCA_Mutation + H_Pylori_Infection + Calcium_Intake + Physical_Activity_Level,
+               family = binomial(link = 'logit'), 
+               data = df_binary)
+
+summary(logistic_model)
+
+
+```
+
+
+
+Q: We see that Age, Smoking, Alcohol Use, Obesity, Red meat diets, Vegetable intakes, Physical Activity, Air pollution, Occupational Hazards, and Calcium Intake are all influencing the probability of developing Lung Cancer as opposed to other cancers being Breast, Prostate, Skin, Colon, and Skin.  <br>
+  1. Now, I want to see what covariates are influencing risk factor score which is associated with getting a certain risk of lung cancer.   <br>
+
+<br>
+<br>
+
+
+## Linear regression using Covariates on Overall Risk Score
+
+```{r}
+
+df_regression <- df %>% 
+  filter(Cancer_Type == "Lung") %>%
+  select(where(is.numeric))
+
+model <- lm(Overall_Risk_Score ~ Age + Smoking + Alcohol_Use + Obesity + Family_History + Diet_Red_Meat + Diet_Salted_Processed + Fruit_Veg_Intake + Physical_Activity + Air_Pollution + Occupational_Hazards + BRCA_Mutation + H_Pylori_Infection + Calcium_Intake + Physical_Activity_Level, data = df_regression)
+
+summary(model)
+
+```
+
+Q: From this we see that Smoking, Alcohol use, Obesity, family history, red meat diets, salt processed diets, air pollution, and occupational hazards are all highly associated with the risk factor score for Lung Cancer. <br>
+  1. Now I want to see if this model is good at predicting risk score <br>
+
+## Risk score prediction
+```{r}
+
+df_remodel <- df_regression %>%
+  mutate(risk_score_pred = predict(model, df_regression %>% as.data.frame()))
+  
+ggplot(df_remodel, aes(Overall_Risk_Score, risk_score_pred)) + 
+  geom_point(alpha = 0.5) + 
+  geom_segment(aes(x=0,y=0,xend=1,yend=1), colour = "#02590F") + labs(x="Risk Level") +
+  labs(y="Predicted Risk Score") +
+  ggtitle("Predicted vs Actual Risk Score") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+
+```
+
+Q: From the plot, we see that is is pretty well at getting thw risk scores using the training data.  <br>
+  1. From here I wish to do a classification tree to predict risk levels <br>
+
+
+## Clasificaiton Tree for predicting risk level
+
+```{r}
+
+# function to split data
+
+df_classification <- df %>% select(where(is.numeric), Risk_Level)
+
+train <- runif(nrow(df_classification)) < 0.75
+test <- !train
+
+classification_tree <- rpart(Risk_Level~Age + Smoking + Alcohol_Use + Obesity + Family_History + Diet_Red_Meat + Diet_Salted_Processed + Fruit_Veg_Intake + Physical_Activity + Air_Pollution + Occupational_Hazards + BRCA_Mutation + H_Pylori_Infection + Calcium_Intake + Physical_Activity_Level,
+                             data = df_classification %>% filter(train),
+                             method = "class")
+
+summary(classification_tree)
+
+
+df_classification$risk_lvl_prediction <- predict(classification_tree, newdata =  df_classification)
+
+df_classification <- df_classification %>% mutate(predicted = colnames(risk_lvl_prediction)[max.col(risk_lvl_prediction)])
+
+conf_mat <- df_classification %>% count(Risk_Level,predicted)
+
+ggplot(conf_mat, aes(x = Risk_Level, y = predicted, fill=n)) + 
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  labs(x="Accutal Risk Level") +
+  labs(y="Predicted Risk Level") +
+  ggtitle("Predicted vs Actual Risk Level") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black",size= 9 ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+```
+
+
+Q: From the heat map, we see that the model was good at preidctig the medium levels of risk, however for te other levels of risk ,it was not as good.  <br>
+  1. From here, I wanted to do a dimensionality reduction to identify if we can use less covarites to accuralty predict which covariates influence the chance of getting a type of cancer.<br>
+  
+  <br>
+  <br>
+  
+## Dimetionality reduction 
+```{r}
+
+# conducting PCA
+
+pca_cancer <- df %>% select(Smoking:Calcium_Intake) %>%
+  mutate(across(c(Smoking:Calcium_Intake), ~as.numeric(.x)))
+
+pca <- prcomp(pca_cancer)
+summary(pca)
+
+all_pcs <- as.data.frame(pca$x)
+
+all_pcs <- all_pcs %>% mutate(risk = df$Risk_Level)
+pc1_pc2 <- all_pcs %>% select(PC1, PC2, risk)
+
+# graphing the data
+pc1_pc2 %>% ggplot(aes(x=PC1, y=PC2,  color = factor(risk))) + 
+  geom_point(alpha=0.5) + 
+  labs(x="PC1") +
+  labs(y="PC2") +
+  ggtitle("PCA: PC1 vs PC2") +
+  theme_minimal(base_size = 14, base_family = "Times New Roman") + 
+                                    theme(legend.position = "right",
+                                          legend.text = element_text(color = "black", size=11),
+                                          legend.title = element_text(color = "black", size=14),
+                                          axis.title = element_text(color = "black"),
+                                          axis.text.x = element_text(color = "black", ),
+                                          axis.text.y = element_text(color = "black"),
+                                          plot.title = element_text(color = "black", size = 14),
+                                          panel.border = element_rect(color = "black", fill = NA, linewidth = 1 ))
+
+
+```
+Q: From this dimensionality reduction, we see that the groups are not that dsitinct however, it could be inferred that there there re two covariates that can be used to somewhat accuratly predict the risk level for a person.
+
+
